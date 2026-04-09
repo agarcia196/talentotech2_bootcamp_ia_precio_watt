@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#06090d">
+<title>{{ page_title or "PrecioWatt Colombia — Predicción del Precio de Bolsa Eléctrica con IA Híbrida" }}</title>
+<meta name="description" content="Demo interactiva de predicción del precio de bolsa eléctrica en Colombia con datos del mercado, simuladores educativos y resultados de un modelo híbrido de IA.">
+<meta property="og:title" content="PrecioWatt Colombia — Predicción del Precio de Bolsa Eléctrica con IA Híbrida">
+<meta property="og:description" content="Visualiza, simula y entiende cómo cambian los precios de bolsa eléctrica en Colombia con una demo interactiva y métricas de modelo.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+<div id="particles"></div>
+
+<!-- ══ NAV ══════════════════════════════════════════ -->
+<nav aria-label="Navegación principal">
+  <div class="nav-logo"><div class="nav-dot" aria-hidden="true"></div>Precio<span>Watt</span></div>
+  <ul class="nav-links">
+    <li><a href="#sec-impact">¿Por qué?</a></li>
+    <li><a href="#sec-predictor">Predictor</a></li>
+    <li><a href="#sec-hidro">Simulador</a></li>
+    <li><a href="#sec-calc">Calculadora</a></li>
+    <li><a href="#sec-quiz">Quiz</a></li>
+    <li><a href="#sec-dashboard">Modelo</a></li>
+    <li><a href="{{ url_for('web.clima') }}">Clima</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Cambiar entre modo oscuro y modo claro" aria-pressed="false">
+      <span class="dot" aria-hidden="true"></span><span id="theme-toggle-label">Modo claro</span>
+    </button>
+    <div class="nav-badge">RF Híbrido v8 · SIMEM · Colombia</div>
+  </div>
+</nav>
+<main id="main-content">
+<!-- ══ HERO ══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-tag">Inteligencia Artificial · Mercado Mayorista · Colombia</div>
+  <h1 class="hero-title">
+    Predicción del precio de bolsa eléctrica en Colombia
+  </h1>
+  <p class="hero-sub">
+    Modelo RF Híbrido v8 entrenado con 968 días de datos reales del SIMEM/XM.<br>
+    Predice el precio diario usando 22 features de generación, demanda,<br>
+    embalses y momentum de precios del mercado eléctrico colombiano.
+  </p>
+
+  <div class="hero-pills">
+    <div class="hero-pill"><span class="hp-num">968</span><span class="hp-lbl">días de datos reales</span></div>
+    <div class="hero-pill"><span class="hp-num">22</span><span class="hp-lbl">features del modelo</span></div>
+    <div class="hero-pill"><span class="hp-num">MAPE 9.32%</span><span class="hp-lbl">referencia test set</span></div>
+    <div class="hero-pill"><span class="hp-num">R² 0.87</span><span class="hp-lbl">modo 30d histórico</span></div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="price-ticker">
+      <div class="ticker-lbl">Último precio registrado en dataset&nbsp;
+        <span style="color:var(--green)" id="ticker-status-dot">● REAL</span>&nbsp;
+        <span style="color:var(--text3);font-size:.85em" id="ticker-fecha-lbl">· 2026-03-24</span>
+      </div>
+      <div class="ticker-price" aria-live="polite">
+        <span class="unit">COP </span><span id="live-price">290.0</span><span class="unit"> /kWh</span>
+      </div>
+      <div class="ticker-ctx">
+        Una ducha de 5 min cuesta <span id="shower-cost">$ 80</span> COP con este precio
+      </div>
+      <div class="ticker-change flat" id="live-change">
+        <span>·</span><span>Cargando predicción más reciente...</span>
+      </div>
+      <div class="ticker-stats">
+        <div class="t-stat"><div class="v">101.0</div><div class="l">Mín histórico</div></div>
+        <div class="t-stat"><div class="v">343.0</div><div class="l">Mediana</div></div>
+        <div class="t-stat"><div class="v">2,459</div><div class="l">Máx histórico</div></div>
+      </div>
+      <div class="ticker-bar"><div class="ticker-fill" id="ticker-fill" style="width:7%"></div></div>
+      <div class="demo-note" id="ticker-pred-note"><strong>Predicción RF Híbrido v8:</strong> <span id="ticker-pred-val">cargando...</span> <span id="ticker-decision-badge" style="margin-left:.5rem;font-size:.75em"></span></div>
+      <div class="ticker-range">
+        <span style="color:var(--green)">Precio bajo</span>
+        <span>Rango 2023–2026</span>
+        <span style="color:var(--col-red)">Precio alto</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll"><div class="scroll-line"></div><span>EXPLORAR</span></div>
+</section>
+<div class="divider"></div>
+
+<!-- ══ IMPACTO / POR QUÉ ═════════════════════════════ -->
+<div id="sec-impact">
+<div class="section-inner">
+  <div class="sec-tag">00 — ¿Por qué importa?</div>
+  <h2 class="sec-title">La energía eléctrica<br>mueve a Colombia</h2>
+  <p class="sec-sub">El precio de bolsa no es solo un número técnico. Afecta tu factura, la industria, el campo y el futuro energético del país. Entenderlo y predecirlo es clave.</p>
+
+  <div class="impact-cards">
+    <div class="imp-card yel">
+      <span class="imp-icon">⚡</span>
+      <div class="imp-num yel">$37 bill.</div>
+      <div class="imp-desc">Facturación anual del sector eléctrico colombiano. Cada centavo del precio de bolsa impacta este mercado.</div>
+      <div class="imp-src">Fuente: CREG / XM 2024</div>
+    </div>
+    <div class="imp-card blu">
+      <span class="imp-icon">🌊</span>
+      <div class="imp-num blu">65%</div>
+      <div class="imp-desc">De la generación eléctrica depende de la lluvia. En años de Fenómeno del Niño, el precio puede triplicarse.</div>
+      <div class="imp-src">Fuente: UPME 2024</div>
+    </div>
+    <div class="imp-card grn">
+      <span class="imp-icon">🏭</span>
+      <div class="imp-num grn">19.4 M</div>
+      <div class="imp-desc">Hogares colombianos que pagan una tarifa de energía directamente vinculada al comportamiento del mercado mayorista.</div>
+      <div class="imp-src">Fuente: DANE 2023</div>
+    </div>
+    <div class="imp-card red">
+      <span class="imp-icon">📈</span>
+      <div class="imp-num red">×6.2</div>
+      <div class="imp-desc">El precio de bolsa puede multiplicarse por 6 en pocas horas durante picos de demanda o crisis de embalses.</div>
+      <div class="imp-src">Datos SIMEM 2025</div>
+    </div>
+  </div>
+
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">🔮</div>
+      <div>
+        <div class="why-title">Predecir antes de actuar</div>
+        <div class="why-desc">Con una predicción confiable, los operadores pueden optimizar el despacho, las empresas reducen costos energéticos y los hogares pueden elegir cuándo consumir más.</div>
+      </div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🌧️</div>
+      <div>
+        <div class="why-title">Colombia y el agua</div>
+        <div class="why-desc">Somos uno de los países más dependientes de la hidroenergía del mundo. Cuando no llueve, la luz se encarece. La IA puede anticipar esos ciclos con semanas de anticipación.</div>
+      </div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🤖</div>
+      <div>
+        <div class="why-title">Redes Neuronales Recurrentes</div>
+        <div class="why-desc">Las RNN están diseñadas para aprender de secuencias en el tiempo. El precio de bolsa tiene patrones horarios, diarios y estacionales que estos modelos capturan con precisión.</div>
+      </div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🇨🇴</div>
+      <div>
+        <div class="why-title">Hecho con datos reales de Colombia</div>
+        <div class="why-desc">Entrenado con 3.143 horas de datos horarios del SIMEM (Sistema de Información del Mercado de Energía Mayorista), la fuente oficial de XM en Colombia.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="divider"></div>
+
+<!-- ══ PREDICTOR ═════════════════════════════════════ -->
+<div id="sec-predictor" class="sec-bg" data-module="predictor">
+<div class="section-inner">
+  <div class="sec-tag">01 — Predicción IA</div>
+  <h2 class="sec-title">Predictor de precio por hora</h2>
+  <p class="sec-sub">Configura las condiciones del sistema eléctrico y explora una aproximación interactiva del comportamiento esperado del precio para la próxima hora.</p>
+
+  <div class="predictor-grid">
+    <div class="panel">
+      <div class="panel-title">Configurar predicción</div>
+
+      <div class="field">
+        <label>Modo de predicción</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:.4rem">
+          <button type="button" class="mode-btn active" id="mode-btn-B" onclick="setModo('B')">
+            <span style="font-size:1.1rem">🔮</span><br><strong>Futuro</strong><br><small>Desde mañana</small>
+          </button>
+          <button type="button" class="mode-btn" id="mode-btn-A" onclick="setModo('A')">
+            <span style="font-size:1.1rem">📊</span><br><strong>Histórico</strong><br><small>Validar pasado</small>
+          </button>
+          <button type="button" class="mode-btn" id="mode-btn-C" onclick="setModo('C')">
+            <span style="font-size:1.1rem">📅</span><br><strong>Rango</strong><br><small>Personalizado</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="field" id="field-dias">
+        <label>Horizonte de predicción</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.4rem">
+          <button type="button" class="dias-btn" onclick="setDias(7)" id="dias-btn-7">7 días</button>
+          <button type="button" class="dias-btn active" onclick="setDias(14)" id="dias-btn-14">14 días</button>
+          <button type="button" class="dias-btn" onclick="setDias(30)" id="dias-btn-30">30 días</button>
+          <button type="button" class="dias-btn" onclick="setDias(60)" id="dias-btn-60">60 días</button>
+        </div>
+      </div>
+
+      <div class="field" id="field-rango" style="display:none">
+        <label>Rango personalizado (Modo C)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem">
+          <div><label style="font-size:.72rem;color:var(--text3)">Fecha inicio</label>
+          <input type="date" id="rango-inicio" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px;border-radius:3px"></div>
+          <div><label style="font-size:.72rem;color:var(--text3)">Fecha fin</label>
+          <input type="date" id="rango-fin" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px;border-radius:3px"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:.75rem;font-family:var(--mono);font-size:.7rem;color:var(--text2)">
+          <div id="pred-modo-desc">🔮 <strong>Modo Futuro:</strong> predice desde el día siguiente a la última fecha del dataset usando contexto fresco de SIMEM.</div>
+        <div style="margin-top:.4rem;color:var(--text3)">Dataset: 2023-07-31 → 2026-03-24 · 968 días</div>
+        </div>
+      </div>
+      <button type="button" class="btn-predict" id="btn-predict" onclick="runPrediction()">⚡ EJECUTAR PREDICCIÓN RF v8</button>
+      <div class="pred-error" id="pred-error" role="alert" aria-live="polite"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div class="panel">
+        <div class="panel-title" id="panel-result-title">RF Híbrido v8 — MAPE ref. 9.32% · 22 features · conectado a SIMEM</div>
+        <div class="result-lbl">Precio predicho (primer día)</div><div id="result-placeholder" class="demo-note" style="margin-top:0;margin-bottom:1rem">Configura el horizonte y presiona ⚡ EJECUTAR para obtener predicciones reales del modelo.</div>
+        <div id="result-loading" style="display:none;text-align:center;padding:1.5rem"><div style="font-family:var(--mono);font-size:.8rem;color:var(--accent)">⏳ Consultando contexto materializado y ejecutando modelo...</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--text3);margin-top:.5rem">La predicción usa datos ya sincronizados en AWS</div><div class="conf-bar" style="margin-top:1rem"><div class="conf-fill" id="loading-bar" style="width:0%;background:var(--accent);transition:width 20s linear"></div></div></div>
+        <div id="result-summary" style="display:none">
+        <div class="result-big" aria-live="polite"><span class="cop">COP </span><span id="result-price">—</span><span class="kwh"> /kWh</span></div>
+        <div style="display:flex;justify-content:center">
+          <div class="result-delta flat" id="result-delta">Configure el modelo y presione Predecir</div>
+        </div>
+        <div class="conf-wrap">
+          <div class="conf-lbl"><span id="decision-label">Confianza del modelo</span><span id="conf-pct">—</span></div>
+          <div class="conf-bar"><div class="conf-fill" id="conf-fill" style="width:0%;background:var(--col-blue2)"></div></div>
+        </div>
+        <div class="mini-row">
+          <div class="mini-g"><div class="mv hydro-c" id="mg-rf">—</div><div class="ml">Días RF</div></div>
+          <div class="mini-g"><div class="mv therm-c" id="mg-naive">—</div><div class="ml">Días Naive</div></div>
+          <div class="mini-g"><div class="mv dem-c" id="mg-alert">—</div><div class="ml">Alerta</div></div>
+        </div>
+        </div><!-- /result-summary -->
+      </div>
+      <div class="panel" id="panel-tabla" style="display:none">
+        <div class="panel-title">Predicciones día a día</div>
+        <div style="overflow-x:auto;overflow-y:auto;max-height:520px">
+          <table id="pred-table" style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.68rem">
+            <thead style="position:sticky;top:0;background:var(--panel);z-index:1">
+              <tr style="color:var(--text3);border-bottom:1px solid var(--border)">
+                <th style="padding:4px 6px;text-align:left">Fecha</th>
+                <th style="padding:4px 6px;text-align:right">Pred</th>
+                <th style="padding:4px 6px;text-align:right">Naive</th>
+                <th style="padding:4px 6px;text-align:right">std14d</th>
+                <th style="padding:4px 6px;text-align:center">Dec</th>
+                <th style="padding:4px 6px;text-align:right">Real</th>
+                <th style="padding:4px 6px;text-align:right">Err%</th>
+              </tr>
+            </thead>
+            <tbody id="pred-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel" id="panel-metricas" style="display:none">
+        <div class="panel-title">Métricas de la ejecución</div>
+        <div id="metricas-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="divider"></div>
+
+<!-- ══ HIDRO ══════════════════════════════════════════ -->
+<section id="sec-hidro" data-module="simulador-hidrico">
+  <div class="sec-tag">02 — Simulador Hídrico</div>
+  <h2 class="sec-title">El agua mueve el precio de Colombia</h2>
+  <p class="sec-sub">El 65% de la energía colombiana viene de embalses. Mueve los controles y observa, de forma educativa, cómo el nivel del agua y la generación térmica pueden presionar el precio de bolsa.</p>
+
+  <div class="hidro-grid">
+    <div style="display:flex;flex-direction:column;gap:2rem">
+      <div class="reservoir-viz">
+        <div class="mtn-l"></div><div class="mtn-r"></div>
+        <div class="reservoir-body">
+          <div class="reservoir-water" id="res-water" style="height:65%"><div class="water-wave"></div></div>
+          <div class="reservoir-label" id="res-label">65%<small>NIVEL</small></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Mix energético actual</div>
+        <div class="sources-bar" id="sources-bar">
+          <div class="src-seg" style="width:65%;background:var(--hydro)"></div>
+          <div class="src-seg" style="width:25%;background:var(--thermal)"></div>
+          <div class="src-seg" style="width:5%;background:var(--solar)"></div>
+          <div class="src-seg" style="width:5%;background:#a78bfa"></div>
+        </div>
+        <div style="display:flex;gap:1.2rem;margin-top:.75rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.63rem">
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--hydro)"></div>Hídrica <span id="src-hydro-pct" style="color:var(--hydro)">65%</span></div>
+          <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.63rem">
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--thermal)"></div>Térmica <span id="src-thermal-pct" style="color:var(--thermal)">25%</span></div>
+          <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.63rem">
+            <div style="width:10px;height:10px;border-radius:2px;background:var(--solar)"></div>Solar <span style="color:var(--solar)">5%</span></div>
+          <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.63rem">
+            <div style="width:10px;height:10px;border-radius:2px;background:#a78bfa"></div>Otras <span style="color:#a78bfa">5%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hidro-controls">
+      <div class="big-slider">
+        <label>💧 Nivel de embalses — <span id="hidro-val" style="color:var(--hydro);font-family:var(--mono);font-size:1.2rem;font-weight:700">65%</span></label>
+        <input type="range" id="hidro-slider" aria-label="Nivel de embalses" min="10" max="100" value="65" step="1">
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.61rem;color:var(--text3)">
+          <span style="color:var(--col-red)">10% — Crisis</span>
+          <span style="color:var(--amber)">50% — Normal</span>
+          <span style="color:var(--hydro)">100% — Lleno</span>
+        </div>
+      </div>
+      <div class="big-slider">
+        <label>🔥 Despacho térmico — <span id="thermal-val" style="color:var(--thermal);font-family:var(--mono);font-size:1.2rem;font-weight:700">25%</span></label>
+        <input type="range" id="thermal-slider" aria-label="Despacho térmico" min="5" max="75" value="25" step="1">
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.61rem;color:var(--text3)">
+          <span style="color:var(--green)">5% — Mínimo</span>
+          <span style="color:var(--thermal)">75% — Máximo</span>
+        </div>
+      </div>
+      <div class="impact-card-h">
+        <div class="impact-lbl">Precio estimado de bolsa</div>
+        <div class="impact-price" id="hidro-price">174 <span style="font-size:.5em;color:var(--text3)">COP/kWh</span></div>
+        <div class="impact-arrow" id="hidro-arrow">⚪</div>
+        <div class="impact-expl" id="hidro-expl">Condiciones normales. Precio dentro del rango histórico habitual.</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1rem">
+        <div style="font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:.75rem">Principales embalses Colombia</div>
+        <div id="cuencas-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ══ CALCULADORA ════════════════════════════════════ -->
+<div id="sec-calc" class="sec-bg" data-module="calculadora">
+<div class="section-inner">
+  <div class="sec-tag">03 — Calculadora</div>
+  <h2 class="sec-title">¿Cuánto paga tu hogar por energía?</h2>
+  <p class="sec-sub">Selecciona los aparatos que usas y ajusta las horas de uso reales de cada uno. El refrigerador trabaja 24 horas, la lavadora solo 1 hora. Así se calcula bien.</p>
+
+  <div class="calc-grid">
+    <div>
+      <div style="font-family:var(--mono);font-size:.68rem;letter-spacing:.15em;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:8px">
+        ▸ ACTIVA Y AJUSTA HORAS/UNIDADES POR APARATO
+      </div>
+      <div class="appliance-list" id="appliance-list"></div>
+      <div style="margin-top:1.2rem">
+        <div style="font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:.5rem">Tarifa por estrato CREG 2026</div>
+        <div class="tarifa-row">
+          <div class="tarifa-btn active" onclick="setTarifa('e12',this)">Estrato 1-2<br><span style="font-size:.85em;color:var(--text3)">~410 COP/kWh</span></div>
+          <div class="tarifa-btn" onclick="setTarifa('e3',this)">Estrato 3<br><span style="font-size:.85em;color:var(--text3)">~530 COP/kWh</span></div>
+          <div class="tarifa-btn" onclick="setTarifa('e46',this)">Estrato 4-6<br><span style="font-size:.85em;color:var(--text3)">~680 COP/kWh</span></div>
+          <div class="tarifa-btn" onclick="setTarifa('ind',this)">Industrial<br><span style="font-size:.85em;color:var(--text3)">~350 COP/kWh</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-result">
+      <div class="panel-title">▸ Resumen mensual</div>
+      <div class="calc-big">
+        <div class="amount" id="calc-monthly">$ 0</div>
+        <div class="period">Costo mensual estimado</div>
+      </div>
+      <div class="calc-rows">
+        <div class="calc-row"><span class="lbl">kWh / día</span><span class="val" id="c-kwh-day">0.00 kWh</span></div>
+        <div class="calc-row"><span class="lbl">kWh / mes</span><span class="val" id="c-kwh-month">0.0 kWh</span></div>
+        <div class="calc-row"><span class="lbl">Tarifa aplicada</span><span class="val" id="c-tarifa">410 COP/kWh</span></div>
+        <div class="calc-row" style="border-left:3px solid var(--amber)">
+          <span class="lbl">Si pagara precio bolsa</span><span class="val" id="c-bolsa">—</span>
+        </div>
+        <div class="calc-row" style="border-left:3px solid var(--green)">
+          <span class="lbl">Alumbrado público est.</span><span class="val" id="c-tax">—</span>
+        </div>
+        <div class="calc-row" style="border-left:3px solid var(--col-blue2)">
+          <span class="lbl">Aparatos activos</span><span class="val" id="c-count">0</span>
+        </div>
+      </div>
+      <div class="calc-note">* Estimación educativa con tarifas de referencia. No incluye todos los cargos regulados, subsidios, contribuciones ni condiciones particulares del comercializador.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="divider"></div>
+
+<!-- ══ QUIZ ══════════════════════════════════════════ -->
+<section id="sec-quiz" data-module="quiz">
+  <div class="sec-tag">04 — Aprende jugando</div>
+  <h2 class="sec-title">¿Qué tanto sabes de energía en Colombia?</h2>
+  <p class="sec-sub">10 preguntas para todo público — desde curiosidades de tu factura hasta cómo funciona la generación eléctrica en el país.</p>
+  <div class="quiz-container">
+    <div class="quiz-prog" id="quiz-prog"></div>
+    <div id="quiz-wrap"></div>
+    <div class="score-card" id="quiz-score"></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════ -->
+<div id="sec-dashboard" class="sec-bg">
+<div class="section-inner">
+  <div class="sec-tag">05 — Modelo IA</div>
+  <h2 class="sec-title">Resultados del modelo</h2>
+  <p class="sec-sub">RF Híbrido v8 entrenado con 968 días de datos reales SIMEM/XM (jul 2023 – mar 2026). 22 features de generación, demanda, embalses y momentum de precios.</p>
+
+  <div class="metrics-grid">
+    <div class="metric-card mae">
+      <div class="metric-lbl">MAPE — Ref. test set</div>
+      <div class="metric-val">9.32<span class="metric-unit">%</span></div>
+      <div class="metric-sub">Naive baseline: 13.74%</div>
+    </div>
+    <div class="metric-card rmse">
+      <div class="metric-lbl">MAPE — 30d histórico</div>
+      <div class="metric-val">9.54<span class="metric-unit">%</span></div>
+      <div class="metric-sub">Naive 30d: 11.59%</div>
+    </div>
+    <div class="metric-card r2">
+      <div class="metric-lbl">R² Score — 30d histórico</div>
+      <div class="metric-val">0.8726</div>
+      <div class="metric-sub">Naive baseline: 0.7982</div>
+    </div>
+    <div class="metric-card smape">
+      <div class="metric-lbl">MAE — 30d histórico</div>
+      <div class="metric-val">20.60<span class="metric-unit"> COP/kWh</span></div>
+      <div class="metric-sub">Naive: 25.64 COP/kWh</div>
+    </div>
+  </div>
+
+  <div class="versions-grid">
+    <div class="ver-card"><div class="ver-name">v5 · RF base (exploración)</div><div class="ver-mae">MAPE —</div><div class="ver-r2">inicio RF</div><div class="ver-bar"><div class="ver-fill" style="width:30%;background:var(--col-red)"></div></div></div>
+    <div class="ver-card"><div class="ver-name">v6 · + momentum (precio_cambio_3d/7d)</div><div class="ver-mae">11.80%</div><div class="ver-r2">MAPE mejora</div><div class="ver-bar"><div class="ver-fill" style="width:55%;background:var(--amber)"></div></div></div>
+    <div class="ver-card"><div class="ver-name">v7 · + reversión (precio_sobre_media_30d)</div><div class="ver-mae">11.87%</div><div class="ver-r2">MAPE mejora</div><div class="ver-bar"><div class="ver-fill" style="width:58%;background:var(--amber)"></div></div></div>
+    <div class="ver-card winner">
+      <div class="ver-name">v8 · + días bajando consecutivos ★ final</div>
+      <div class="ver-mae" style="color:var(--green)">MAPE 9.32%</div>
+      <div class="ver-r2" style="color:var(--green)">R² 0.87 (30d)</div>
+      <div class="ver-bar"><div class="ver-fill" style="width:100%;background:linear-gradient(90deg,var(--col-blue2),var(--green))"></div></div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Features más importantes — RF Híbrido v8 (22 features)</div>
+    <div class="sparks" id="feature-bars"></div>
+  </div>
+</div>
+</div>
+<div class="divider"></div>
+
+<section id="sec-sources">
+  <div class="section-inner">
+    <div class="sec-tag">
+<div class="divider"></div>
+
+<!-- ══ CTA ════════════════════════════════════════════ -->
+<div class="cta-section">
+  <h2 class="cta-title">Energía más inteligente<br>para Colombia</h2>
+  <p class="cta-sub">Este proyecto demuestra que con datos abiertos del SIMEM e inteligencia artificial es posible anticipar el mercado eléctrico. Un paso hacia una red más eficiente, transparente y sostenible.</p>
+  <div class="cta-badges">
+    <div class="cta-badge gold"><div class="dot"></div> </div>
+    <div class="cta-badge">📊 Datos SIMEM / XM</div>
+    <div class="cta-badge">🤖 Modelo híbrido + XGBoost</div>
+    <div class="cta-badge">🇨🇴 Hecho en Colombia</div>
+    <div class="cta-badge">⚡ 3,143 horas de datos reales</div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ═════════════════════════════════════════ -->
+<footer>
+  <div class="foot-logo">Precio<span>Watt</span> Colombia</div>
+  <div class="foot-sub">Predicción del Precio de Bolsa Eléctrica · RF Híbrido v8 · SIMEM · XM</div>
+  <div class="foot-line">
+    <div class="f-badge">RF Híbrido v8</div>
+    <div class="f-badge">MAPE 9.32% ref.</div>
+    <div class="f-badge">R² 0.87 (30d)</div>
+    <div class="f-badge">22 Features</div>
+    <div class="f-badge">968 días SIMEM</div>
+    <div class="f-badge">jul 2023 – mar 2026</div>
+  </div>
+  <div class="foot-copy">© 2026 PrecioWatt Colombia — Proyecto académico · Datos: SIMEM / XM / CREG</div>
+</footer>
+</main>
+
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>

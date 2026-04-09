@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="clima-shell">
+  <div class="sec-tag">Clima y sistema energético</div>
+  <h1 class="sec-title">Cómo el clima transforma la energía en Colombia</h1>
+  <p class="sec-sub">
+    La lluvia sostiene embalses, la sequía eleva la presión sobre térmicas y la temperatura modifica la demanda.
+    Este módulo traduce el clima en una lectura energética clara, visual y útil para entender el comportamiento del sistema.
+  </p>
+
+  <div class="selector-row">
+    <div class="selector-card">
+      <div class="panel-title">Explorar por departamento</div>
+      <form method="get" action="{{ url_for('web.clima') }}">
+        <label for="departamento" class="sr-only">Seleccionar departamento</label>
+        <select id="departamento" name="departamento" onchange="this.form.submit()">
+          {% for d in departamentos %}
+          <option value="{{ d.slug }}" {% if d.slug == current.slug %}selected{% endif %}>{{ d.nombre }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+
+    <div class="story-card">
+      <div class="panel-title">Lectura ejecutiva</div>
+      <p>
+        En Colombia, el precio de bolsa responde a condiciones del sistema a escala nacional. La tarifa final al usuario puede cambiar
+        según comercializador, operador de red y estructura del mercado local.
+      </p>
+    </div>
+  </div>
+
+  <div class="clima-grid">
+    <div class="map-card">
+      <div class="panel-title">Panorama climático del territorio</div>
+
+      <div id="climate-map" class="map-shell" aria-label="Mapa interactivo de departamentos de Colombia"></div>
+
+      <div class="clima-kpis">
+        <div class="clima-kpi">
+          <div class="v" style="color:var(--hydro)">{{ current.lluvia_mm }} mm</div>
+          <div class="l">Lluvia estimada</div>
+        </div>
+        <div class="clima-kpi">
+          <div class="v" style="color:var(--thermal)">{{ current.temperatura_c }} °C</div>
+          <div class="l">Temperatura</div>
+        </div>
+        <div class="clima-kpi">
+          <div class="v" style="color:{{ kpi_impacto.color }}">{{ kpi_impacto.value }}</div>
+          <div class="l">{{ kpi_impacto.label }}</div>
+        </div>
+        <div class="clima-kpi">
+          <div class="v" style="color:var(--accent)">{{ current.presion_precio }}</div>
+          <div class="l">Presión percibida</div>
+        </div>
+      </div>
+
+      <div class="insight-strip">
+        <div class="insight-pill">32 departamentos incluidos</div>
+        <div class="insight-pill">Hidrodependencia nacional ~65%</div>
+        <div class="insight-pill">Sequía prolongada → más térmica</div>
+        <div class="insight-pill">Calor extremo → mayor demanda</div>
+      </div>
+    </div>
+
+    <div class="weather-panel">
+      <div class="weather-highlight">
+        <div class="panel-title">Análisis del departamento</div>
+        <h3>{{ current.nombre }}</h3>
+        <p>{{ current.impacto }}</p>
+      </div>
+
+      <div class="weather-stats">
+        <div class="weather-stat">
+          <div class="k">Lluvia</div>
+          <div class="v" style="color:var(--hydro)">{{ current.lluvia_mm }} mm</div>
+        </div>
+        <div class="weather-stat">
+          <div class="k">Temperatura</div>
+          <div class="v" style="color:var(--thermal)">{{ current.temperatura_c }} °C</div>
+        </div>
+        <div class="weather-stat">
+          <div class="k">Nivel de alerta</div>
+          <div class="v" style="color:{{ kpi_impacto.color }}">{{ current.nivel_alerta }}</div>
+        </div>
+        <div class="weather-stat">
+          <div class="k">Presión sobre energía</div>
+          <div class="v" style="color:var(--accent)">{{ current.presion_precio }}</div>
+        </div>
+      </div>
+
+      <div class="story-card">
+        <div class="panel-title">Lo que significa para el sistema</div>
+        <p>{{ current.narrativa }}</p>
+        <div class="section-divider"></div>
+        <p>
+          Cuando la precipitación cae y la temperatura sube, aumenta la probabilidad de mayor respaldo térmico y de una narrativa
+          de mercado más sensible al riesgo. Eso no implica un precio local distinto de bolsa, pero sí cambia la lectura del sistema
+          y la percepción de presión sobre tarifas finales.
+        </p>
+        <a class="back-link" href="{{ url_for('web.index') }}">← Volver al análisis principal</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+window.CLIMATE_DEPARTMENTS = {{ departamentos|tojson }};
+window.CLIMATE_SELECTED = {{ current.slug|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/clima.js') }}"></script>
+{% endblock %}

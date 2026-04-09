@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06090d">
+  <title>{{ page_title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    .clima-shell{max-width:1200px;margin:0 auto;padding:110px 2rem 4rem;position:relative;z-index:1}
+    .clima-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:1.5rem;align-items:start}
+    .map-card,.side-card,.selector-card,.story-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem}
+    .selector-row{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem;margin:1.1rem 0 1rem}
+    .selector-card select{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;border-radius:3px}
+    .map-shell{height:430px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border2);background:var(--bg3)}
+    .clima-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-top:1rem}
+    .clima-kpi{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1rem;text-align:center}
+    .clima-kpi .v{font-family:var(--mono);font-size:1.35rem;font-weight:700}
+    .clima-kpi .l{font-family:var(--mono);font-size:.62rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:.2rem}
+    .insight-strip{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+    .insight-pill{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:999px;padding:8px 14px;font-family:var(--mono);font-size:.68rem;color:var(--text2)}
+    .weather-panel{display:flex;flex-direction:column;gap:1rem}
+    .weather-highlight{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1.25rem}
+    .weather-highlight h3{font-family:var(--sans);font-size:1.45rem;margin-bottom:.25rem}
+    .weather-highlight p{font-size:.92rem;color:var(--text2);line-height:1.7}
+    .weather-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+    .weather-stat{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1rem}
+    .weather-stat .k{font-family:var(--mono);font-size:.62rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
+    .weather-stat .v{font-family:var(--mono);font-size:1.2rem;font-weight:700;margin-top:.2rem}
+    .story-card p{font-size:.9rem;color:var(--text2);line-height:1.75}
+    .back-link{display:inline-flex;margin-top:1rem;font-family:var(--mono);font-size:.76rem;color:var(--accent);text-decoration:none}
+    .section-divider{height:1px;background:linear-gradient(90deg,var(--border),transparent);margin:1rem 0}
+    .leaflet-container{font-family:var(--body);background:var(--bg3)}
+    .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--text);border:1px solid var(--border)}
+    .leaflet-control-zoom a{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
+    body.theme-light .leaflet-popup-content-wrapper,body.theme-light .leaflet-popup-tip{background:#fff;color:var(--text)}
+    @media(max-width:980px){
+      .clima-grid,.selector-row,.clima-kpis,.weather-stats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+  <div id="particles"></div>
+  <nav aria-label="Navegación principal">
+    <div class="nav-logo"><div class="nav-dot" aria-hidden="true"></div>Precio<span>Watt</span></div>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('web.index') }}">Inicio</a></li>
+      <li><a href="{{ url_for('web.clima') }}">Clima</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Cambiar entre modo oscuro y modo claro" aria-pressed="false">
+        <span class="dot" aria-hidden="true"></span><span id="theme-toggle-label">Modo claro</span>
+      </button>
+    </div>
+  </nav>
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

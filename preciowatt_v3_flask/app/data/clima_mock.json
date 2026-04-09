@@ -1,0 +1,23 @@
+{
+  "country": "Colombia",
+  "hydro_dependency_pct": 65,
+  "notes": [
+    "La sequía puede reducir aporte hídrico y aumentar despacho térmico.",
+    "El precio de bolsa se observa a nivel nacional.",
+    "La tarifa final sí puede cambiar por ciudad, comercializador y componentes regulados."
+  ],
+  "regions": [
+    {
+      "name": "Bogotá D.C.",
+      "rain_mm": 12,
+      "temp_c": 14,
+      "risk": "baja"
+    },
+    {
+      "name": "Valledupar",
+      "rain_mm": 2,
+      "temp_c": 34,
+      "risk": "alta"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "app": "python app.py",
+  "context": {
+    "project_name": "free-tier-ml-demo",
+    "aws_region": "us-east-1",
+    "instance_type": "t3.micro",
+    "allowed_ssh_cidr": "0.0.0.0/0",
+    "app_port": 8000,
+    "model_bucket_prefix": "free-tier-ml-artifacts",
+    "model_object_key": "models/rf_hibrido_v5.pkl",
+    "config_object_key": "config/config_v5.pkl",
+    "raw_prefix": "raw/simem",
+    "missing_data_threshold_days": 3,
+    "lookback_days": 60,
+    "sync_status_table_name": "sync-status",
+    "initial_backfill_start_date": "2023-01-01",
+    "historical_start_date": "2023-01-01",
+    "dataset_anchor_start_date": "2023-07-31",
+    "daily_sync_lookback_days": 7,
+    "sync_schedule_time": "08:00",
+    "backfill_chunk_days": 3,
+    "key_name": "",
+    "vpc_cidr": "10.42.0.0/24"
+  }
+}
